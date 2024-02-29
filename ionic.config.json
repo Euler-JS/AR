@@ -1,0 +1,7 @@
+{
+  "name": "Augmented",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
