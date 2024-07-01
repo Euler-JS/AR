@@ -1,15 +1,23 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <!-- <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script> -->
+    <script src="js/aframe.min.js"></script>
+    <script src="js/aframe-ar.js"></script>
   </head>
   <body style="margin : 0px; overflow: hidden;">
    <a-scene 
    id="scene1" 
-   embedded arjs="trackingMethod: best;"
+   embedded arjs="trackingMethod: best; videoTexture: true; debugUIEnabled: false;"
    cursor="rayOrigin: mouse;  fuse: true" 
    renderer="logarithmicDepthBuffer: true; antialias: true; colorManagement: true;">
+<!-- -25.916211; longitude: 32.548454 -->
+   <a-entity 
+   gltf-model="./medica/Mobility_Reto01_00_.gltf" 
+   rotation="0 180 0" scale="0.15 0.15 0.15" 
+   gps-entity-place="longitude: 32.548454; latitude: -25.916211;" 
+   animation-mixer/>
    
    <a-marker type="pattern" url="pattern-E.patt">
     <!-- <a-image
