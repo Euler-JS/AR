@@ -3,32 +3,35 @@
   <head>
     <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <!-- <script src="./src/assets/js/aframe.min.js"></script>
+    <script src="./src/assets/js/aframe-ar.jss"></script> -->
   </head>
   <body style="margin: 0px; overflow: hidden">
     <a-scene
       id="scene1"
       embedded
       arjs="trackingMethod: best; videoTexture: true; debugUIEnabled: false;"
-      cursor="rayOrigin: mouse; fuse: true"
+      cursor="rayOrigin: mouse;  fuse: true"
       renderer="logarithmicDepthBuffer: true; antialias: true; colorManagement: true;"
     >
       <!-- -25.916211; longitude: 32.548454 -->
-      <a-camera gps-new-camera="gpsMinDistance: 5"></a-camera>
+      <a-camera gps-new-camera="gpsMinDistance: 2"></a-camera>
       <a-entity
         position="0 1.6 3"
         scale="0.15 0.15 0.15"
         gps-entity-place="longitude: 34.8781076; latitude: -19.8282405;"
         animation-mixer
-      ></a-entity>
+      />
 
       <a-box
         id="caja2"
         position="0 1.5 -1"
         material="color: red;"
-        width="3"
-        height="3"
-        depth="3"
-      ></a-box>
+        width="1"
+        height="1"
+        depth="1.5"
+      >
+      </a-box>
 
       <!-- Chão -->
       <a-plane
@@ -37,10 +40,11 @@
         width="10"
         height="10"
         color="#7BC8A4"
-      ></a-plane>
+      >
+      </a-plane>
 
       <!-- Luz -->
-      <a-light type="directional" intensity="0.5" position="1 1 1"></a-light>
+      <a-light type="directional" intensity="0.5" position="1 1 1"> </a-light>
     </a-scene>
     <script>
       // let marker1 = document.querySelector("#marker1");
