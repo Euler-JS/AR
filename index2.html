@@ -18,7 +18,7 @@
       <a-camera gps-new-camera="gpsMinDistance: 7.5"></a-camera>
       <a-entity
         position="0 1.6 3"
-        scale="0.75 0.75 0.75"
+        scale="0.40 0.40 0.40"
         material="color: red"
         gps-entity-place="longitude: 34.8781076; latitude: -19.8282405;"
         animation-mixer
@@ -48,12 +48,12 @@
       <a-light type="directional" intensity="0.5" position="1 1 1"> </a-light>
     </a-scene>
     <script>
-      // let marker1 = document.querySelector("#marker1");
+      let marker1 = document.querySelector("#caja2");
 
-      // marker1.addEventListener("click", function (evt) {
-      //   alert("Seja Bem vindo Ao Mundo Da Realidade Aumentada...");
-      //   console.log("HOLA MARKER");
-      // });
+      marker1.addEventListener("click", function (evt) {
+        alert("Seja Bem vindo Ao Mundo Da Realidade Aumentada...");
+        console.log("HOLA MARKER");
+      });
     </script>
   </body>
 </html>
