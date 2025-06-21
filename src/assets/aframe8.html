@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>AR Simples - Funcional</title>
+    
+    <!-- A-Frame versão estável -->
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    
+    <!-- AR.js versão mais recente e estável -->
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.0/aframe/build/aframe-ar.js"></script>
+    
+    <script>
+        // Registrar componente gesture-detector ANTES da cena
+        AFRAME.registerComponent('gesture-detector', {
+            schema: {
+                element: { default: '' }
+            },
+            init: function() {
+                this.targetElement = this.data.element || this.el;
+                this.internalState = {
+                    previousState: null
+                };
+                this.emitGestureEvent = this.emitGestureEvent.bind(this);
+                this.targetElement.addEventListener('touchstart', this.emitGestureEvent);
+                this.targetElement.addEventListener('touchend', this.emitGestureEvent);
+                this.targetElement.addEventListener('touchmove', this.emitGestureEvent);
+            },
+            remove: function() {
+                this.targetElement.removeEventListener('touchstart', this.emitGestureEvent);
+                this.targetElement.removeEventListener('touchend', this.emitGestureEvent);
+                this.targetElement.removeEventListener('touchmove', this.emitGestureEvent);
+            },
+            emitGestureEvent: function(event) {
+                const currentState = this.getTouchState(event);
+                const previousState = this.internalState.previousState;
+
+                const gestureContinues = previousState &&
+                    currentState &&
+                    currentState.touchCount == previousState.touchCount;
+
+                const gestureEnded = previousState && !gestureContinues;
+                const gestureStarted = currentState && !gestureContinues;
+
+                if (gestureEnded) {
+                    const eventName = this.getEventPrefix(previousState.touchCount) + 'fingerend';
+                    this.el.emit(eventName, previousState);
+                    this.internalState.previousState = null;
+                }
+
+                if (gestureStarted) {
+                    currentState.startTime = performance.now();
+                    currentState.startPosition = currentState.position;
+                    currentState.startSpread = currentState.spread;
+                    const eventName = this.getEventPrefix(currentState.touchCount) + 'fingerstart';
+                    this.el.emit(eventName, currentState);
+                    this.internalState.previousState = currentState;
+                }
+
+                if (gestureContinues) {
+                    const eventName = this.getEventPrefix(currentState.touchCount) + 'fingermove';
+                    this.el.emit(eventName, currentState);
+                    this.internalState.previousState = currentState;
+                }
+            },
+            getTouchState: function(event) {
+                if (event.touches.length === 0) {
+                    return null;
+                }
+
+                const touchList = [];
+                for (let i = 0; i < event.touches.length; i++) {
+                    touchList.push(event.touches[i]);
+                }
+
+                const touchCount = touchList.length;
+                const centroid = this.getCentroid(touchList);
+                const spread = this.getSpread(touchList, centroid);
+
+                return {
+                    touchCount: touchCount,
+                    position: centroid,
+                    spread: spread,
+                    touches: touchList
+                };
+            },
+            getCentroid: function(touchList) {
+                let x = 0;
+                let y = 0;
+                for (let i = 0; i < touchList.length; i++) {
+                    x += touchList[i].clientX;
+                    y += touchList[i].clientY;
+                }
+                x /= touchList.length;
+                y /= touchList.length;
+                return { x: x, y: y };
+            },
+            getSpread: function(touchList, centroid) {
+                let spread = 0;
+                for (let i = 0; i < touchList.length; i++) {
+                    spread += Math.sqrt(
+                        Math.pow(centroid.x - touchList[i].clientX, 2) +
+                        Math.pow(centroid.y - touchList[i].clientY, 2));
+                }
+                spread /= touchList.length;
+                return spread;
+            },
+            getEventPrefix: function(touchCount) {
+                const numberNames = ['zero', 'one', 'two', 'three', 'four', 'five'];
+                return numberNames[touchCount];
+            }
+        });
+    </script>
+    
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #000;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            z-index: 999;
+            font-size: 12px;
+            max-width: 200px;
+        }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        #debug {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            z-index: 999;
+        }
+        .debug-btn {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border: 1px solid white;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <p>🔄 Carregando AR...</p>
+        <p>Verificando câmera...</p>
+    </div>
+    
+    <div id="info">
+        🎯 Aponte para marcador HIRO ou PP
+    </div>
+    
+    <div id="debug">
+        <button class="debug-btn" onclick="testCamera()">🎥 Testar Câmera</button>
+        <button class="debug-btn" onclick="forceStartCamera()">🔄 Forçar AR</button>
+        <button class="debug-btn" onclick="window.location.reload()">🔄 Recarregar</button>
+    </div>
+
+    <a-scene
+        vr-mode-ui="enabled: false"
+        renderer="logarithmicDepthBuffer: true"
+        arjs="sourceType: webcam; debugUIEnabled: false;"
+        embedded
+        gesture-detector
+        id="scene"
+    >
+        <!-- Marcador Hiro -->
+        <a-marker preset="hiro" id="hiro-marker">
+            <!-- Cubo vermelho -->
+            <a-box
+                position="0 0.5 0"
+                rotation="0 45 0"
+                scale="1 1 1"
+                color="red"
+                animation="property: rotation; to: 0 405 0; loop: true; dur: 5000"
+            ></a-box>
+            
+            <!-- Texto Hiro -->
+            <a-text
+                value="HIRO!"
+                position="0 1.5 0"
+                align="center"
+                color="white"
+                scale="2 2 2"
+            ></a-text>
+        </a-marker>
+
+        <!-- Marcador personalizado pp.patt -->
+        <a-marker type="pattern" url="ar.patt" id="marker-pp">
+            <!-- Cubo azul -->
+            <a-box
+                position="0 0.5 0"
+                rotation="0 45 0"
+                scale="1.2 1.2 1.2"
+                color="blue"
+                animation="property: rotation; to: 0 405 0; loop: true; dur: 3000"
+            ></a-box>
+            
+            <!-- Texto personalizado -->
+            <a-text
+                value="PP MARKER!"
+                position="0 1.8 0"
+                align="center"
+                color="yellow"
+                scale="1.5 1.5 1.5"
+            ></a-text>
+            
+            <!-- Cilindro verde animado -->
+            <a-cylinder
+                position="1.5 0.5 0"
+                radius="0.3"
+                height="1"
+                color="green"
+                animation="property: position; to: -1.5 0.5 0; dir: alternate; dur: 2000; loop: true"
+            ></a-cylinder>
+            
+            <!-- Esfera laranja -->
+            <a-sphere
+                position="0 0.5 1.5"
+                radius="0.4"
+                color="orange"
+                animation="property: position; to: 0 0.5 -1.5; dir: alternate; dur: 4000; loop: true"
+            ></a-sphere>
+        </a-marker>
+
+
+         <!-- Marcador personalizado pp.patt -->
+        <a-marker type="pattern" url="pattern-marker.patt" id="marker-pp">
+            <!-- Cubo azul -->
+            <a-box
+                position="0 0.5 0"
+                rotation="0 45 0"
+                scale="1.2 1.2 1.2"
+                color="blue"
+                animation="property: rotation; to: 0 405 0; loop: true; dur: 3000"
+            ></a-box>
+            
+            <!-- Texto personalizado -->
+            <a-text
+                value="PATERN"
+                position="0 1.8 0"
+                align="center"
+                color="yellow"
+                scale="1.5 1.5 1.5"
+            ></a-text>
+            
+            <!-- Cilindro verde animado -->
+            <a-cylinder
+                position="1.5 0.5 0"
+                radius="0.3"
+                height="1"
+                color="green"
+                animation="property: position; to: -1.5 0.5 0; dir: alternate; dur: 2000; loop: true"
+            ></a-cylinder>
+            
+            <!-- Esfera laranja -->
+            <a-sphere
+                position="0 0.5 1.5"
+                radius="0.4"
+                color="orange"
+                animation="property: position; to: 0 0.5 -1.5; dir: alternate; dur: 4000; loop: true"
+            ></a-sphere>
+        </a-marker>
+
+         <!-- Marcador personalizado pp.patt -->
+        <a-marker type="pattern" url="pp.patt" id="marker-pp">
+            <!-- Cubo azul -->
+            <a-box
+                position="0 0.5 0"
+                rotation="0 45 0"
+                scale="1.2 1.2 1.2"
+                color="blue"
+                animation="property: rotation; to: 0 405 0; loop: true; dur: 3000"
+            ></a-box>
+            
+            <!-- Texto personalizado -->
+            <a-text
+                value="PP!"
+                position="0 1.8 0"
+                align="center"
+                color="yellow"
+                scale="1.5 1.5 1.5"
+            ></a-text>
+            
+            <!-- Cilindro verde animado -->
+            <a-cylinder
+                position="1.5 0.5 0"
+                radius="0.3"
+                height="1"
+                color="green"
+                animation="property: position; to: -1.5 0.5 0; dir: alternate; dur: 2000; loop: true"
+            ></a-cylinder>
+            
+            <!-- Esfera laranja -->
+            <a-sphere
+                position="0 0.5 1.5"
+                radius="0.4"
+                color="orange"
+                animation="property: position; to: 0 0.5 -1.5; dir: alternate; dur: 4000; loop: true"
+            ></a-sphere>
+        </a-marker>
+
+         <!-- Marcador personalizado pp.patt -->
+        <a-marker type="pattern" url="pattern-E.patt" id="marker-pp">
+            <!-- Cubo azul -->
+            <a-box
+                position="0 0.5 0"
+                rotation="0 45 0"
+                scale="1.2 1.2 1.2"
+                color="blue"
+                animation="property: rotation; to: 0 405 0; loop: true; dur: 3000"
+            ></a-box>
+            
+            <!-- Texto personalizado -->
+            <a-text
+                value="EP!"
+                position="0 1.8 0"
+                align="center"
+                color="yellow"
+                scale="1.5 1.5 1.5"
+            ></a-text>
+            
+            <!-- Cilindro verde animado -->
+            <a-cylinder
+                position="1.5 0.5 0"
+                radius="0.3"
+                height="1"
+                color="green"
+                animation="property: position; to: -1.5 0.5 0; dir: alternate; dur: 2000; loop: true"
+            ></a-cylinder>
+            
+            <!-- Esfera laranja -->
+            <a-sphere
+                position="0 0.5 1.5"
+                radius="0.4"
+                color="orange"
+                animation="property: position; to: 0 0.5 -1.5; dir: alternate; dur: 4000; loop: true"
+            ></a-sphere>
+        </a-marker>
+
+
+        <!-- Câmera -->
+        <a-entity camera look-controls wasd-controls="enabled: false"></a-entity>
+    </a-scene>
+
+    <script>
+        // Função para forçar inicialização da câmera
+        async function forceStartCamera() {
+            console.log('Forçando início da câmera...');
+            try {
+                // Tentar recriar a cena AR
+                const scene = document.querySelector('a-scene');
+                if (scene && scene.components && scene.components.arjs) {
+                    console.log('Reiniciando AR.js...');
+                    scene.components.arjs.requestWebcamPermissions();
+                }
+            } catch (error) {
+                console.error('Erro ao forçar câmera:', error);
+            }
+        }
+        async function testCamera() {
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+            loading.innerHTML = '<p>🔍 Testando acesso à câmera...</p>';
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                
+                loading.innerHTML = '<p>✅ Câmera funcionando!</p><p>Fechando teste...</p>';
+                
+                // Mostrar vídeo por 2 segundos
+                setTimeout(() => {
+                    stream.getTracks().forEach(track => track.stop());
+                    loading.style.display = 'none';
+                }, 2000);
+                
+            } catch (error) {
+                loading.innerHTML = `<p>❌ Erro: ${error.message}</p><p>Verifique permissões</p>`;
+            }
+        }
+
+        // Debug da câmera
+        async function checkCameraPermissions() {
+            try {
+                console.log('Verificando permissões da câmera...');
+                
+                // Verificar se getUserMedia está disponível
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    console.error('getUserMedia não está disponível');
+                    document.getElementById('loading').innerHTML = '<p>❌ Erro: Câmera não suportada</p><p>Use HTTPS ou navegador compatível</p>';
+                    return false;
+                }
+
+                // Tentar acessar a câmera
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    } 
+                });
+                
+                console.log('Câmera acessada com sucesso!');
+                
+                // Parar o stream de teste
+                stream.getTracks().forEach(track => track.stop());
+                
+                document.getElementById('loading').innerHTML = '<p>✅ Câmera OK!</p><p>Iniciando AR...</p>';
+                return true;
+                
+            } catch (error) {
+                console.error('Erro ao acessar câmera:', error);
+                
+                let errorMsg = '';
+                switch(error.name) {
+                    case 'NotAllowedError':
+                        errorMsg = 'Permissão negada. Permita acesso à câmera.';
+                        break;
+                    case 'NotFoundError':
+                        errorMsg = 'Câmera não encontrada.';
+                        break;
+                    case 'NotSupportedError':
+                        errorMsg = 'Câmera não suportada. Use HTTPS.';
+                        break;
+                    default:
+                        errorMsg = `Erro: ${error.message}`;
+                }
+                
+                document.getElementById('loading').innerHTML = `<p style="color: red;">❌ ${errorMsg}</p><p>Clique "Testar Câmera" ou recarregue</p>`;
+                return false;
+            }
+        }
+
+        // Aguardar carregamento completo
+        window.addEventListener('load', async function() {
+            console.log('Página carregada');
+            console.log('Protocolo:', window.location.protocol);
+            console.log('Hostname:', window.location.hostname);
+            
+            // Verificar se está em HTTPS ou localhost
+            if (window.location.protocol !== 'https:' && 
+                window.location.hostname !== 'localhost' && 
+                window.location.hostname !== '127.0.0.1' &&
+                window.location.hostname !== '0.0.0.0') {
+                document.getElementById('loading').innerHTML = '<p style="color: red;">⚠️ Use HTTPS ou localhost</p><p>Câmera requer conexão segura</p>';
+                return;
+            }
+            
+            // Não testar câmera antecipadamente - deixar AR.js gerenciar
+            document.getElementById('loading').innerHTML = '<p>✅ Iniciando AR...</p><p>Aguarde a câmera ativar</p>';
+            
+            // Esconder loading após um tempo maior
+            setTimeout(() => {
+                const loading = document.getElementById('loading');
+                if (loading.style.display !== 'none') {
+                    loading.style.display = 'none';
+                }
+            }, 5000);
+
+            // Eventos dos marcadores
+            const markerHiro = document.querySelector('#hiro-marker');
+            const markerPP = document.querySelector('#marker-pp');
+            const info = document.getElementById('info');
+            
+            let markersFound = {
+                hiro: false,
+                pp: false
+            };
+            
+            function updateMarkerStatus() {
+                if (markersFound.hiro && markersFound.pp) {
+                    info.innerHTML = '🎉 Ambos marcadores ativos!';
+                    info.style.background = 'rgba(0, 128, 0, 0.8)';
+                } else if (markersFound.hiro) {
+                    info.innerHTML = '✅ Marcador HIRO ativo';
+                    info.style.background = 'rgba(255, 100, 0, 0.8)';
+                } else if (markersFound.pp) {
+                    info.innerHTML = '✅ Marcador PP ativo';
+                    info.style.background = 'rgba(0, 100, 255, 0.8)';
+                } else {
+                    info.innerHTML = '🔍 Procure marcador HIRO ou PP';
+                    info.style.background = 'rgba(128, 0, 0, 0.8)';
+                }
+            }
+            
+            // Eventos marcador Hiro
+            if (markerHiro) {
+                markerHiro.addEventListener('markerFound', function() {
+                    console.log('Marcador HIRO encontrado!');
+                    markersFound.hiro = true;
+                    updateMarkerStatus();
+                });
+
+                markerHiro.addEventListener('markerLost', function() {
+                    console.log('Marcador HIRO perdido');
+                    markersFound.hiro = false;
+                    updateMarkerStatus();
+                });
+            }
+            
+            // Eventos marcador PP
+            if (markerPP) {
+                markerPP.addEventListener('markerFound', function() {
+                    console.log('Marcador PP encontrado!');
+                    markersFound.pp = true;
+                    updateMarkerStatus();
+                });
+
+                markerPP.addEventListener('markerLost', function() {
+                    console.log('Marcador PP perdido');
+                    markersFound.pp = false;
+                    updateMarkerStatus();
+                });
+            }
+
+            // Eventos do AR.js
+            const scene = document.querySelector('a-scene');
+            if (scene) {
+                scene.addEventListener('loaded', function() {
+                    console.log('A-Scene carregada com sucesso');
+                });
+
+                scene.addEventListener('renderstart', function() {
+                    console.log('Renderização iniciada');
+                    document.getElementById('loading').style.display = 'none';
+                });
+                
+                // Eventos específicos do AR.js
+                scene.addEventListener('arjs-video-loaded', function() {
+                    console.log('Vídeo AR carregado!');
+                    document.getElementById('info').innerHTML = '📹 Câmera funcionando - Procure marcadores';
+                    document.getElementById('loading').style.display = 'none';
+                });
+
+                // Mais eventos do AR.js para debug
+                scene.addEventListener('camera-init', function() {
+                    console.log('Câmera AR.js inicializada');
+                });
+
+                scene.addEventListener('camera-error', function(event) {
+                    console.error('Erro na câmera AR.js:', event.detail);
+                    document.getElementById('loading').innerHTML = '<p style="color: red;">❌ Erro na câmera AR</p>';
+                });
+            }
+
+            // Tratamento de erros
+            window.addEventListener('error', function(e) {
+                console.error('Erro capturado:', e.error);
+                document.getElementById('loading').innerHTML = `<p style="color: red;">❌ Erro: ${e.error}</p>`;
+            });
+
+            // Monitor do status da câmera
+            let cameraCheckCount = 0;
+            const cameraMonitor = setInterval(() => {
+                cameraCheckCount++;
+                console.log(`Checando status AR (${cameraCheckCount}s)...`);
+                
+                // Verificar se tem vídeo elemento ativo
+                const video = document.querySelector('video');
+                if (video && video.srcObject) {
+                    console.log('✅ Vídeo AR.js ativo!');
+                    document.getElementById('info').innerHTML = '📹 Câmera ativa - Procure marcadores';
+                    clearInterval(cameraMonitor);
+                } else if (cameraCheckCount === 5) {
+                    console.log('🔄 Tentando forçar início da câmera...');
+                    forceStartCamera();
+                } else if (cameraCheckCount > 10) {
+                    console.log('⚠️ Câmera AR não ativou em 10s');
+                    document.getElementById('loading').innerHTML = '<p style="color: orange;">⚠️ Câmera não iniciou</p><p>Clique "🔄 Forçar AR" ou "🎥 Testar Câmera"</p>';
+                    clearInterval(cameraMonitor);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
