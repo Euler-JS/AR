@@ -169,7 +169,7 @@
     </div>
     
     <div id="info">
-        🎯 Aponte para o marcador Hiro
+        🎯 Aponte para marcador HIRO ou PP
     </div>
     
     <div id="debug">
@@ -188,9 +188,8 @@
     >
         <!-- Marcador Hiro -->
         <a-marker preset="hiro" id="hiro-marker">
-            <!-- Cubo simples -->
+            <!-- Cubo vermelho -->
             <a-box
-                id="box"
                 position="0 0.5 0"
                 rotation="0 45 0"
                 scale="1 1 1"
@@ -198,15 +197,169 @@
                 animation="property: rotation; to: 0 405 0; loop: true; dur: 5000"
             ></a-box>
             
-            <!-- Texto -->
+            <!-- Texto Hiro -->
             <a-text
-                value="AR OK!"
+                value="HIRO!"
                 position="0 1.5 0"
                 align="center"
                 color="white"
                 scale="2 2 2"
             ></a-text>
         </a-marker>
+
+        <!-- Marcador personalizado pp.patt -->
+        <a-marker type="pattern" url="ar.patt" id="marker-pp">
+            <!-- Cubo azul -->
+            <a-box
+                position="0 0.5 0"
+                rotation="0 45 0"
+                scale="1.2 1.2 1.2"
+                color="blue"
+                animation="property: rotation; to: 0 405 0; loop: true; dur: 3000"
+            ></a-box>
+            
+            <!-- Texto personalizado -->
+            <a-text
+                value="PP MARKER!"
+                position="0 1.8 0"
+                align="center"
+                color="yellow"
+                scale="1.5 1.5 1.5"
+            ></a-text>
+            
+            <!-- Cilindro verde animado -->
+            <a-cylinder
+                position="1.5 0.5 0"
+                radius="0.3"
+                height="1"
+                color="green"
+                animation="property: position; to: -1.5 0.5 0; dir: alternate; dur: 2000; loop: true"
+            ></a-cylinder>
+            
+            <!-- Esfera laranja -->
+            <a-sphere
+                position="0 0.5 1.5"
+                radius="0.4"
+                color="orange"
+                animation="property: position; to: 0 0.5 -1.5; dir: alternate; dur: 4000; loop: true"
+            ></a-sphere>
+        </a-marker>
+
+
+         <!-- Marcador personalizado pp.patt -->
+        <a-marker type="pattern" url="pattern-marker.patt" id="marker-pp">
+            <!-- Cubo azul -->
+            <a-box
+                position="0 0.5 0"
+                rotation="0 45 0"
+                scale="1.2 1.2 1.2"
+                color="blue"
+                animation="property: rotation; to: 0 405 0; loop: true; dur: 3000"
+            ></a-box>
+            
+            <!-- Texto personalizado -->
+            <a-text
+                value="PATERN"
+                position="0 1.8 0"
+                align="center"
+                color="yellow"
+                scale="1.5 1.5 1.5"
+            ></a-text>
+            
+            <!-- Cilindro verde animado -->
+            <a-cylinder
+                position="1.5 0.5 0"
+                radius="0.3"
+                height="1"
+                color="green"
+                animation="property: position; to: -1.5 0.5 0; dir: alternate; dur: 2000; loop: true"
+            ></a-cylinder>
+            
+            <!-- Esfera laranja -->
+            <a-sphere
+                position="0 0.5 1.5"
+                radius="0.4"
+                color="orange"
+                animation="property: position; to: 0 0.5 -1.5; dir: alternate; dur: 4000; loop: true"
+            ></a-sphere>
+        </a-marker>
+
+         <!-- Marcador personalizado pp.patt -->
+        <a-marker type="pattern" url="pp.patt" id="marker-pp">
+            <!-- Cubo azul -->
+            <a-box
+                position="0 0.5 0"
+                rotation="0 45 0"
+                scale="1.2 1.2 1.2"
+                color="blue"
+                animation="property: rotation; to: 0 405 0; loop: true; dur: 3000"
+            ></a-box>
+            
+            <!-- Texto personalizado -->
+            <a-text
+                value="PP!"
+                position="0 1.8 0"
+                align="center"
+                color="yellow"
+                scale="1.5 1.5 1.5"
+            ></a-text>
+            
+            <!-- Cilindro verde animado -->
+            <a-cylinder
+                position="1.5 0.5 0"
+                radius="0.3"
+                height="1"
+                color="green"
+                animation="property: position; to: -1.5 0.5 0; dir: alternate; dur: 2000; loop: true"
+            ></a-cylinder>
+            
+            <!-- Esfera laranja -->
+            <a-sphere
+                position="0 0.5 1.5"
+                radius="0.4"
+                color="orange"
+                animation="property: position; to: 0 0.5 -1.5; dir: alternate; dur: 4000; loop: true"
+            ></a-sphere>
+        </a-marker>
+
+         <!-- Marcador personalizado pp.patt -->
+        <a-marker type="pattern" url="pattern-E.patt" id="marker-pp">
+            <!-- Cubo azul -->
+            <a-box
+                position="0 0.5 0"
+                rotation="0 45 0"
+                scale="1.2 1.2 1.2"
+                color="blue"
+                animation="property: rotation; to: 0 405 0; loop: true; dur: 3000"
+            ></a-box>
+            
+            <!-- Texto personalizado -->
+            <a-text
+                value="EP!"
+                position="0 1.8 0"
+                align="center"
+                color="yellow"
+                scale="1.5 1.5 1.5"
+            ></a-text>
+            
+            <!-- Cilindro verde animado -->
+            <a-cylinder
+                position="1.5 0.5 0"
+                radius="0.3"
+                height="1"
+                color="green"
+                animation="property: position; to: -1.5 0.5 0; dir: alternate; dur: 2000; loop: true"
+            ></a-cylinder>
+            
+            <!-- Esfera laranja -->
+            <a-sphere
+                position="0 0.5 1.5"
+                radius="0.4"
+                color="orange"
+                animation="property: position; to: 0 0.5 -1.5; dir: alternate; dur: 4000; loop: true"
+            ></a-sphere>
+        </a-marker>
+
 
         <!-- Câmera -->
         <a-entity camera look-controls wasd-controls="enabled: false"></a-entity>
@@ -328,21 +481,59 @@
                 }
             }, 5000);
 
-            // Eventos do marcador
-            const marker = document.querySelector('#hiro-marker');
+            // Eventos dos marcadores
+            const markerHiro = document.querySelector('#hiro-marker');
+            const markerPP = document.querySelector('#marker-pp');
             const info = document.getElementById('info');
             
-            if (marker) {
-                marker.addEventListener('markerFound', function() {
-                    console.log('Marcador encontrado!');
-                    info.innerHTML = '✅ Marcador encontrado!';
+            let markersFound = {
+                hiro: false,
+                pp: false
+            };
+            
+            function updateMarkerStatus() {
+                if (markersFound.hiro && markersFound.pp) {
+                    info.innerHTML = '🎉 Ambos marcadores ativos!';
                     info.style.background = 'rgba(0, 128, 0, 0.8)';
+                } else if (markersFound.hiro) {
+                    info.innerHTML = '✅ Marcador HIRO ativo';
+                    info.style.background = 'rgba(255, 100, 0, 0.8)';
+                } else if (markersFound.pp) {
+                    info.innerHTML = '✅ Marcador PP ativo';
+                    info.style.background = 'rgba(0, 100, 255, 0.8)';
+                } else {
+                    info.innerHTML = '🔍 Procure marcador HIRO ou PP';
+                    info.style.background = 'rgba(128, 0, 0, 0.8)';
+                }
+            }
+            
+            // Eventos marcador Hiro
+            if (markerHiro) {
+                markerHiro.addEventListener('markerFound', function() {
+                    console.log('Marcador HIRO encontrado!');
+                    markersFound.hiro = true;
+                    updateMarkerStatus();
                 });
 
-                marker.addEventListener('markerLost', function() {
-                    console.log('Marcador perdido');
-                    info.innerHTML = '🔍 Procure o marcador Hiro';
-                    info.style.background = 'rgba(128, 0, 0, 0.8)';
+                markerHiro.addEventListener('markerLost', function() {
+                    console.log('Marcador HIRO perdido');
+                    markersFound.hiro = false;
+                    updateMarkerStatus();
+                });
+            }
+            
+            // Eventos marcador PP
+            if (markerPP) {
+                markerPP.addEventListener('markerFound', function() {
+                    console.log('Marcador PP encontrado!');
+                    markersFound.pp = true;
+                    updateMarkerStatus();
+                });
+
+                markerPP.addEventListener('markerLost', function() {
+                    console.log('Marcador PP perdido');
+                    markersFound.pp = false;
+                    updateMarkerStatus();
                 });
             }
 
@@ -361,7 +552,7 @@
                 // Eventos específicos do AR.js
                 scene.addEventListener('arjs-video-loaded', function() {
                     console.log('Vídeo AR carregado!');
-                    document.getElementById('info').innerHTML = '📹 Câmera funcionando - Procure marcador Hiro';
+                    document.getElementById('info').innerHTML = '📹 Câmera funcionando - Procure marcadores';
                     document.getElementById('loading').style.display = 'none';
                 });
 
@@ -392,7 +583,7 @@
                 const video = document.querySelector('video');
                 if (video && video.srcObject) {
                     console.log('✅ Vídeo AR.js ativo!');
-                    document.getElementById('info').innerHTML = '📹 Câmera ativa - Procure marcador Hiro';
+                    document.getElementById('info').innerHTML = '📹 Câmera ativa - Procure marcadores';
                     clearInterval(cameraMonitor);
                 } else if (cameraCheckCount === 5) {
                     console.log('🔄 Tentando forçar início da câmera...');
